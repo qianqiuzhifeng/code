@@ -47,67 +47,75 @@ import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 
 /**
- * A reflection-based utility that enables atomic updates to
- * designated {@code volatile} reference fields of designated
- * classes.  This class is designed for use in atomic data structures
- * in which several reference fields of the same node are
- * independently subject to atomic updates. For example, a tree node
+ * A reflection-based utility that enables atomic updates to designated
+ * {@code volatile} reference fields of designated
+ * classes.（基于反射的实用程序，可以对指定类的指定volatile引用字段进行原子更新。） This class is designed for
+ * use in atomic data structures in which several reference fields of the same
+ * node are independently subject to atomic
+ * updates.（此类设计用于原子数据结构，其中同一节点的多个引用字段独立地受原子更新的影响。） For example, a tree node
  * might be declared as
  *
- * <pre> {@code
- * class Node {
- *   private volatile Node left, right;
+ * <pre>
+ * {
+ *     &#64;code
+ *     class Node {
+ *         private volatile Node left, right;
  *
- *   private static final AtomicReferenceFieldUpdater<Node, Node> leftUpdater =
- *     AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "left");
- *   private static AtomicReferenceFieldUpdater<Node, Node> rightUpdater =
- *     AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "right");
+ *         private static final AtomicReferenceFieldUpdater<Node, Node> leftUpdater = AtomicReferenceFieldUpdater
+ *                 .newUpdater(Node.class, Node.class, "left");
+ *         private static AtomicReferenceFieldUpdater<Node, Node> rightUpdater = AtomicReferenceFieldUpdater
+ *                 .newUpdater(Node.class, Node.class, "right");
  *
- *   Node getLeft() { return left; }
- *   boolean compareAndSetLeft(Node expect, Node update) {
- *     return leftUpdater.compareAndSet(this, expect, update);
- *   }
- *   // ... and so on
- * }}</pre>
+ *         Node getLeft() {
+ *             return left;
+ *         }
+ * 
+ *         boolean compareAndSetLeft(Node expect, Node update) {
+ *             return leftUpdater.compareAndSet(this, expect, update);
+ *         }
+ *         // ... and so on
+ *     }
+ * }
+ * </pre>
  *
- * <p>Note that the guarantees of the {@code compareAndSet}
- * method in this class are weaker than in other atomic classes.
- * Because this class cannot ensure that all uses of the field
- * are appropriate for purposes of atomic access, it can
- * guarantee atomicity only with respect to other invocations of
- * {@code compareAndSet} and {@code set} on the same updater.
+ * <p>
+ * Note that the guarantees of the {@code compareAndSet} method in this class
+ * are weaker than in other atomic classes.（请注意，此类中compareAndSet方法的保证比其他原子类弱。）
+ * Because this class cannot ensure that all uses of the field are appropriate
+ * for purposes of atomic access, it can guarantee atomicity only with respect
+ * to other invocations of {@code compareAndSet} and {@code set} on the same
+ * updater.（因为这个类不能保证属性调用的原子性，它只能保证同一更新程序中compareAndSet和set的其他调用的原子性）
  *
  * @since 1.5
  * @author Doug Lea
  * @param <T> The type of the object holding the updatable field
  * @param <V> The type of the field
  */
-public abstract class AtomicReferenceFieldUpdater<T,V> {
+public abstract class AtomicReferenceFieldUpdater<T, V> {
 
     /**
-     * Creates and returns an updater for objects with the given field.
-     * The Class arguments are needed to check that reflective types and
-     * generic types match.
+     * Creates and returns an updater for objects with the given
+     * field.（基于给定属性创建并返回一个updater） The Class arguments are needed to check that
+     * reflective types and generic types match.（需要Class参数来检查反射类型和泛型类型是否匹配）
      *
-     * @param tclass the class of the objects holding the field
-     * @param vclass the class of the field
+     * @param tclass    the class of the objects holding the field
+     * @param vclass    the class of the field
      * @param fieldName the name of the field to be updated
-     * @param <U> the type of instances of tclass
-     * @param <W> the type of instances of vclass
+     * @param           <U> the type of instances of tclass
+     * @param           <W> the type of instances of vclass
      * @return the updater
-     * @throws ClassCastException if the field is of the wrong type
+     * @throws ClassCastException       if the field is of the wrong type
      * @throws IllegalArgumentException if the field is not volatile
-     * @throws RuntimeException with a nested reflection-based
-     * exception if the class does not hold field or is the wrong type,
-     * or the field is inaccessible to the caller according to Java language
-     * access control
+     * @throws RuntimeException         with a nested reflection-based exception if
+     *                                  the class does not hold field or is the
+     *                                  wrong type, or the field is inaccessible to
+     *                                  the caller according to Java language access
+     *                                  control
      */
     @CallerSensitive
-    public static <U,W> AtomicReferenceFieldUpdater<U,W> newUpdater(Class<U> tclass,
-                                                                    Class<W> vclass,
-                                                                    String fieldName) {
-        return new AtomicReferenceFieldUpdaterImpl<U,W>
-            (tclass, vclass, fieldName, Reflection.getCallerClass());
+    public static <U, W> AtomicReferenceFieldUpdater<U, W> newUpdater(Class<U> tclass, Class<W> vclass,
+            String fieldName) {
+        return new AtomicReferenceFieldUpdaterImpl<U, W>(tclass, vclass, fieldName, Reflection.getCallerClass());
     }
 
     /**
@@ -117,13 +125,14 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     }
 
     /**
-     * Atomically sets the field of the given object managed by this updater
-     * to the given updated value if the current value {@code ==} the
-     * expected value. This method is guaranteed to be atomic with respect to
-     * other calls to {@code compareAndSet} and {@code set}, but not
-     * necessarily with respect to other changes in the field.
+     * Atomically sets the field of the given object managed by this updater to the
+     * given updated value if the current value {@code ==} the expected
+     * value.（当前值和预期值相等的时候，由updater原子性的设置属性值） This method is guaranteed to be atomic
+     * with respect to other calls to {@code compareAndSet} and {@code set}, but not
+     * necessarily with respect to other changes in the
+     * field.（这个方法保证在其他compareAndSet和set调用时的原子性，但不一定与该属性的其他更改相关）
      *
-     * @param obj An object whose field to conditionally set
+     * @param obj    An object whose field to conditionally set
      * @param expect the expected value
      * @param update the new value
      * @return {@code true} if successful
@@ -131,17 +140,18 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     public abstract boolean compareAndSet(T obj, V expect, V update);
 
     /**
-     * Atomically sets the field of the given object managed by this updater
-     * to the given updated value if the current value {@code ==} the
-     * expected value. This method is guaranteed to be atomic with respect to
-     * other calls to {@code compareAndSet} and {@code set}, but not
-     * necessarily with respect to other changes in the field.
+     * Atomically sets the field of the given object managed by this updater to the
+     * given updated value if the current value {@code ==} the expected value. This
+     * method is guaranteed to be atomic with respect to other calls to
+     * {@code compareAndSet} and {@code set}, but not necessarily with respect to
+     * other changes in the field.
      *
-     * <p><a href="package-summary.html#weakCompareAndSet">May fail
-     * spuriously and does not provide ordering guarantees</a>, so is
-     * only rarely an appropriate alternative to {@code compareAndSet}.
+     * <p>
+     * <a href="package-summary.html#weakCompareAndSet">May fail spuriously and does
+     * not provide ordering guarantees</a>, so is only rarely an appropriate
+     * alternative to {@code compareAndSet}.
      *
-     * @param obj An object whose field to conditionally set
+     * @param obj    An object whose field to conditionally set
      * @param expect the expected value
      * @param update the new value
      * @return {@code true} if successful
@@ -149,28 +159,29 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     public abstract boolean weakCompareAndSet(T obj, V expect, V update);
 
     /**
-     * Sets the field of the given object managed by this updater to the
-     * given updated value. This operation is guaranteed to act as a volatile
-     * store with respect to subsequent invocations of {@code compareAndSet}.
+     * Sets the field of the given object managed by this updater to the given
+     * updated value. This operation is guaranteed to act as a volatile store with
+     * respect to subsequent invocations of
+     * {@code compareAndSet}.（保证此操作在compareAndSet的后续调用中充当volatile存储。）
      *
-     * @param obj An object whose field to set
+     * @param obj      An object whose field to set
      * @param newValue the new value
      */
     public abstract void set(T obj, V newValue);
 
     /**
-     * Eventually sets the field of the given object managed by this
-     * updater to the given updated value.
+     * Eventually sets the field of the given object managed by this updater to the
+     * given updated value.（最终将此更新程序管理的给定对象的字段设置为给定的更新值。）
      *
-     * @param obj An object whose field to set
+     * @param obj      An object whose field to set
      * @param newValue the new value
      * @since 1.6
      */
     public abstract void lazySet(T obj, V newValue);
 
     /**
-     * Gets the current value held in the field of the given object managed
-     * by this updater.
+     * Gets the current value held in the field of the given object managed by this
+     * updater.
      *
      * @param obj An object whose field to get
      * @return the current value
@@ -178,10 +189,10 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     public abstract V get(T obj);
 
     /**
-     * Atomically sets the field of the given object managed by this updater
-     * to the given value and returns the old value.
+     * Atomically sets the field of the given object managed by this updater to the
+     * given value and returns the old value.
      *
-     * @param obj An object whose field to get and set
+     * @param obj      An object whose field to get and set
      * @param newValue the new value
      * @return the previous value
      */
@@ -194,12 +205,13 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     }
 
     /**
-     * Atomically updates the field of the given object managed by this updater
-     * with the results of applying the given function, returning the previous
-     * value. The function should be side-effect-free, since it may be
-     * re-applied when attempted updates fail due to contention among threads.
+     * Atomically updates the field of the given object managed by this updater with
+     * the results of applying the given function, returning the previous
+     * value.（基于给定方法的返回结果原子性的更新给定对象的属性） The function should be side-effect-free,
+     * since it may be re-applied when attempted updates fail due to contention
+     * among threads.（该函数应该是无副作用的，因为当尝试的更新由于线程之间的争用而失败时，它可能会被重新应用。）
      *
-     * @param obj An object whose field to get and set
+     * @param obj            An object whose field to get and set
      * @param updateFunction a side-effect-free function
      * @return the previous value
      * @since 1.8
@@ -214,12 +226,12 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     }
 
     /**
-     * Atomically updates the field of the given object managed by this updater
-     * with the results of applying the given function, returning the updated
-     * value. The function should be side-effect-free, since it may be
-     * re-applied when attempted updates fail due to contention among threads.
+     * Atomically updates the field of the given object managed by this updater with
+     * the results of applying the given function, returning the updated value. The
+     * function should be side-effect-free, since it may be re-applied when
+     * attempted updates fail due to contention among threads.
      *
-     * @param obj An object whose field to get and set
+     * @param obj            An object whose field to get and set
      * @param updateFunction a side-effect-free function
      * @return the updated value
      * @since 1.8
@@ -234,22 +246,21 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     }
 
     /**
-     * Atomically updates the field of the given object managed by this
-     * updater with the results of applying the given function to the
-     * current and given values, returning the previous value. The
-     * function should be side-effect-free, since it may be re-applied
-     * when attempted updates fail due to contention among threads.  The
-     * function is applied with the current value as its first argument,
-     * and the given update as the second argument.
+     * Atomically updates the field of the given object managed by this updater with
+     * the results of applying the given function to the current and given values,
+     * returning the previous value. The function should be side-effect-free, since
+     * it may be re-applied when attempted updates fail due to contention among
+     * threads. The function is applied with the current value as its first
+     * argument, and the given update as the second
+     * argument.（这个方法的第一个参数是属性当前值，第二个参数是变更后的属性值）
      *
-     * @param obj An object whose field to get and set
-     * @param x the update value
+     * @param obj                 An object whose field to get and set
+     * @param x                   the update value
      * @param accumulatorFunction a side-effect-free function of two arguments
      * @return the previous value
      * @since 1.8
      */
-    public final V getAndAccumulate(T obj, V x,
-                                    BinaryOperator<V> accumulatorFunction) {
+    public final V getAndAccumulate(T obj, V x, BinaryOperator<V> accumulatorFunction) {
         V prev, next;
         do {
             prev = get(obj);
@@ -259,22 +270,20 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
     }
 
     /**
-     * Atomically updates the field of the given object managed by this
-     * updater with the results of applying the given function to the
-     * current and given values, returning the updated value. The
-     * function should be side-effect-free, since it may be re-applied
-     * when attempted updates fail due to contention among threads.  The
-     * function is applied with the current value as its first argument,
-     * and the given update as the second argument.
+     * Atomically updates the field of the given object managed by this updater with
+     * the results of applying the given function to the current and given values,
+     * returning the updated value. The function should be side-effect-free, since
+     * it may be re-applied when attempted updates fail due to contention among
+     * threads. The function is applied with the current value as its first
+     * argument, and the given update as the second argument.
      *
-     * @param obj An object whose field to get and set
-     * @param x the update value
+     * @param obj                 An object whose field to get and set
+     * @param x                   the update value
      * @param accumulatorFunction a side-effect-free function of two arguments
      * @return the updated value
      * @since 1.8
      */
-    public final V accumulateAndGet(T obj, V x,
-                                    BinaryOperator<V> accumulatorFunction) {
+    public final V accumulateAndGet(T obj, V x, BinaryOperator<V> accumulatorFunction) {
         V prev, next;
         do {
             prev = get(obj);
@@ -283,13 +292,12 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
         return next;
     }
 
-    private static final class AtomicReferenceFieldUpdaterImpl<T,V>
-        extends AtomicReferenceFieldUpdater<T,V> {
+    private static final class AtomicReferenceFieldUpdaterImpl<T, V> extends AtomicReferenceFieldUpdater<T, V> {
         private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
         private final long offset;
         /**
-         * if field is protected, the subclass constructing updater, else
-         * the same as tclass
+         * if field is protected, the subclass constructing updater, else the same as
+         * tclass
          */
         private final Class<?> cclass;
         /** class holding the field */
@@ -298,38 +306,31 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
         private final Class<V> vclass;
 
         /*
-         * Internal type checks within all update methods contain
-         * internal inlined optimizations checking for the common
-         * cases where the class is final (in which case a simple
-         * getClass comparison suffices) or is of type Object (in
-         * which case no check is needed because all objects are
-         * instances of Object). The Object case is handled simply by
-         * setting vclass to null in constructor.  The targetCheck and
-         * updateCheck methods are invoked when these faster
+         * Internal type checks within all update methods contain internal inlined
+         * optimizations checking for the common cases where the class is final (in
+         * which case a simple getClass comparison suffices) or is of type Object (in
+         * which case no check is needed because all objects are instances of Object).
+         * The Object case is handled simply by setting vclass to null in constructor.
+         * The targetCheck and updateCheck methods are invoked when these faster
          * screenings fail.
          */
 
-        AtomicReferenceFieldUpdaterImpl(final Class<T> tclass,
-                                        final Class<V> vclass,
-                                        final String fieldName,
-                                        final Class<?> caller) {
+        AtomicReferenceFieldUpdaterImpl(final Class<T> tclass, final Class<V> vclass, final String fieldName,
+                final Class<?> caller) {
             final Field field;
             final Class<?> fieldClass;
             final int modifiers;
             try {
-                field = AccessController.doPrivileged(
-                    new PrivilegedExceptionAction<Field>() {
-                        public Field run() throws NoSuchFieldException {
-                            return tclass.getDeclaredField(fieldName);
-                        }
-                    });
+                field = AccessController.doPrivileged(new PrivilegedExceptionAction<Field>() {
+                    public Field run() throws NoSuchFieldException {
+                        return tclass.getDeclaredField(fieldName);
+                    }
+                });
                 modifiers = field.getModifiers();
-                sun.reflect.misc.ReflectUtil.ensureMemberAccess(
-                    caller, tclass, null, modifiers);
+                sun.reflect.misc.ReflectUtil.ensureMemberAccess(caller, tclass, null, modifiers);
                 ClassLoader cl = tclass.getClassLoader();
                 ClassLoader ccl = caller.getClassLoader();
-                if ((ccl != null) && (ccl != cl) &&
-                    ((cl == null) || !isAncestor(cl, ccl))) {
+                if ((ccl != null) && (ccl != cl) && ((cl == null) || !isAncestor(cl, ccl))) {
                     sun.reflect.misc.ReflectUtil.checkPackageAccess(tclass);
                 }
                 fieldClass = field.getType();
@@ -354,10 +355,8 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
             // If the updater refers to a protected field of a declaring class
             // outside the current package, the receiver argument will be
             // narrowed to the type of the accessing class.
-            this.cclass = (Modifier.isProtected(modifiers) &&
-                           tclass.isAssignableFrom(caller) &&
-                           !isSamePackage(tclass, caller))
-                          ? caller : tclass;
+            this.cclass = (Modifier.isProtected(modifiers) && tclass.isAssignableFrom(caller)
+                    && !isSamePackage(tclass, caller)) ? caller : tclass;
             this.tclass = tclass;
             this.vclass = vclass;
             this.offset = U.objectFieldOffset(field);
@@ -365,8 +364,8 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
 
         /**
          * Returns true if the second classloader can be found in the first
-         * classloader's delegation chain.
-         * Equivalent to the inaccessible: first.isAncestor(second).
+         * classloader's delegation chain. Equivalent to the inaccessible:
+         * first.isAncestor(second).
          */
         private static boolean isAncestor(ClassLoader first, ClassLoader second) {
             ClassLoader acl = first;
@@ -380,12 +379,12 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
         }
 
         /**
-         * Returns true if the two classes have the same class loader and
-         * package qualifier
+         * Returns true if the two classes have the same class loader and package
+         * qualifier
          */
         private static boolean isSamePackage(Class<?> class1, Class<?> class2) {
             return class1.getClassLoader() == class2.getClassLoader()
-                   && Objects.equals(getPackageName(class1), getPackageName(class2));
+                    && Objects.equals(getPackageName(class1), getPackageName(class2));
         }
 
         private static String getPackageName(Class<?> cls) {
@@ -395,8 +394,7 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
         }
 
         /**
-         * Checks that target argument is instance of cclass.  On
-         * failure, throws cause.
+         * Checks that target argument is instance of cclass. On failure, throws cause.
          */
         private final void accessCheck(T obj) {
             if (!cclass.isInstance(obj))
@@ -404,21 +402,16 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
         }
 
         /**
-         * Throws access exception if accessCheck failed due to
-         * protected access, else ClassCastException.
+         * Throws access exception if accessCheck failed due to protected access, else
+         * ClassCastException.
          */
         private final void throwAccessCheckException(T obj) {
             if (cclass == tclass)
                 throw new ClassCastException();
             else
-                throw new RuntimeException(
-                    new IllegalAccessException(
-                        "Class " +
-                        cclass.getName() +
-                        " can not access a protected member of class " +
-                        tclass.getName() +
-                        " using an instance of " +
-                        obj.getClass().getName()));
+                throw new RuntimeException(new IllegalAccessException(
+                        "Class " + cclass.getName() + " can not access a protected member of class " + tclass.getName()
+                                + " using an instance of " + obj.getClass().getName()));
         }
 
         private final void valueCheck(V v) {
@@ -458,14 +451,14 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
         @SuppressWarnings("unchecked")
         public final V get(T obj) {
             accessCheck(obj);
-            return (V)U.getObjectVolatile(obj, offset);
+            return (V) U.getObjectVolatile(obj, offset);
         }
 
         @SuppressWarnings("unchecked")
         public final V getAndSet(T obj, V newValue) {
             accessCheck(obj);
             valueCheck(newValue);
-            return (V)U.getAndSetObject(obj, offset, newValue);
+            return (V) U.getAndSetObject(obj, offset, newValue);
         }
     }
 }
