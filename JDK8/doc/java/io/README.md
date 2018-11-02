@@ -6,7 +6,7 @@
 
 ### AutoCloseable 【interface】
 
-详情参见类[](../../../src/java/lang/AutoCloseable.java)
+详情参见类[AutoCloseable](../../../src/java/lang/AutoCloseable.java)
 
 Java7引入，作为引入try-with-resources特性的接口。
 详情见[try-with-resources](../../feature/try-with-resources.md)
@@ -17,7 +17,7 @@ Java7引入，作为引入try-with-resources特性的接口。
 
 * 实现者需要保证close方法的幂等性。
 
-详情参见类[Closeable](../../../src/java/io/FilterInputStream.java)
+详情参见类[Closeable](../../../src/java/io/Closeable.java)
 
 ### InputStream 【abstract class】
 
