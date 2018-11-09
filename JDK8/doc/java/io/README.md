@@ -95,3 +95,37 @@ Java7引入，作为引入try-with-resources特性的接口。
 
 详情参见类[Reader.java](../../../src/java/io/Reader.java)
 
+### BufferedReader 【class】
+
+* 继承Reader
+
+* 提供字符缓冲功能
+
+详情参见类[BufferedReader.java](../../../src/java/io/BufferedReader.java)
+
+### Appendable 【interface】
+
+* 字符追加接口
+
+* 线程非安全，线程安全性由实现类实现
+
+详情参见类[Appendable.java](../../../src/java/lang/Appendable.java)
+
+### Writer 【abstract class】
+
+* 实现Appendable，Closeable，Flushable接口
+
+* 字符写入流抽象实现
+
+* 线程安全
+
+详情参见类[Writer.java](../../../src/java/io/Writer.java)
+
+### BufferedWrite 【class】
+
+* 继承write
+
+* 提供字符缓冲功能
+
+详情参见类[BufferedWrite.java](../../../src/java/io/BufferedWrite.java)
+
