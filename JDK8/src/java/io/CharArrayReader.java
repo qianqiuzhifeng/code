@@ -27,10 +27,10 @@ package java.io;
 
 /**
  * This class implements a character buffer that can be used as a
- * character-input stream.
+ * character-input stream. (字符缓冲实现可以用作字符缓冲输入流)
  *
- * @author      Herb Jellinek
- * @since       JDK1.1
+ * @author Herb Jellinek
+ * @since JDK1.1
  */
 public class CharArrayReader extends Reader {
     /** The character buffer. */
@@ -43,14 +43,15 @@ public class CharArrayReader extends Reader {
     protected int markedPos = 0;
 
     /**
-     *  The index of the end of this buffer.  There is not valid
-     *  data at or beyond this index.
+     * The index of the end of this buffer. There is not valid data at or beyond
+     * this index.（此缓冲区结束的索引。 此索引处或之外没有有效数据）
      */
     protected int count;
 
     /**
      * Creates a CharArrayReader from the specified array of chars.
-     * @param buf       Input buffer (not copied)
+     * 
+     * @param buf Input buffer (not copied)
      */
     public CharArrayReader(char buf[]) {
         this.buf = buf;
@@ -61,23 +62,23 @@ public class CharArrayReader extends Reader {
     /**
      * Creates a CharArrayReader from the specified array of chars.
      *
-     * <p> The resulting reader will start reading at the given
-     * <tt>offset</tt>.  The total number of <tt>char</tt> values that can be
-     * read from this reader will be either <tt>length</tt> or
-     * <tt>buf.length-offset</tt>, whichever is smaller.
+     * <p>
+     * The resulting reader will start reading at the given <tt>offset</tt>. The
+     * total number of <tt>char</tt> values that can be read from this reader will
+     * be either <tt>length</tt> or <tt>buf.length-offset</tt>, whichever is
+     * smaller.
      *
-     * @throws IllegalArgumentException
-     *         If <tt>offset</tt> is negative or greater than
-     *         <tt>buf.length</tt>, or if <tt>length</tt> is negative, or if
-     *         the sum of these two values is negative.
+     * @throws IllegalArgumentException If <tt>offset</tt> is negative or greater
+     *                                  than <tt>buf.length</tt>, or if
+     *                                  <tt>length</tt> is negative, or if the sum
+     *                                  of these two values is negative.
      *
-     * @param buf       Input buffer (not copied)
-     * @param offset    Offset of the first char to read
-     * @param length    Number of chars to read
+     * @param buf    Input buffer (not copied)
+     * @param offset Offset of the first char to read
+     * @param length Number of chars to read
      */
     public CharArrayReader(char buf[], int offset, int length) {
-        if ((offset < 0) || (offset > buf.length) || (length < 0) ||
-            ((offset + length) < 0)) {
+        if ((offset < 0) || (offset > buf.length) || (length < 0) || ((offset + length) < 0)) {
             throw new IllegalArgumentException();
         }
         this.buf = buf;
@@ -95,7 +96,7 @@ public class CharArrayReader extends Reader {
     /**
      * Reads a single character.
      *
-     * @exception   IOException  If an I/O error occurs
+     * @exception IOException If an I/O error occurs
      */
     public int read() throws IOException {
         synchronized (lock) {
@@ -109,19 +110,19 @@ public class CharArrayReader extends Reader {
 
     /**
      * Reads characters into a portion of an array.
-     * @param b  Destination buffer
-     * @param off  Offset at which to start storing characters
-     * @param len   Maximum number of characters to read
-     * @return  The actual number of characters read, or -1 if
-     *          the end of the stream has been reached
+     * 
+     * @param b   Destination buffer
+     * @param off Offset at which to start storing characters
+     * @param len Maximum number of characters to read
+     * @return The actual number of characters read, or -1 if the end of the stream
+     *         has been reached
      *
-     * @exception   IOException  If an I/O error occurs
+     * @exception IOException If an I/O error occurs
      */
     public int read(char b[], int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
-            if ((off < 0) || (off > b.length) || (len < 0) ||
-                ((off + len) > b.length) || ((off + len) < 0)) {
+            if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
                 throw new IndexOutOfBoundsException();
             } else if (len == 0) {
                 return 0;
@@ -145,16 +146,17 @@ public class CharArrayReader extends Reader {
     }
 
     /**
-     * Skips characters.  Returns the number of characters that were skipped.
+     * Skips characters. Returns the number of characters that were skipped.
      *
-     * <p>The <code>n</code> parameter may be negative, even though the
-     * <code>skip</code> method of the {@link Reader} superclass throws
-     * an exception in this case. If <code>n</code> is negative, then
-     * this method does nothing and returns <code>0</code>.
+     * <p>
+     * The <code>n</code> parameter may be negative, even though the
+     * <code>skip</code> method of the {@link Reader} superclass throws an exception
+     * in this case. If <code>n</code> is negative, then this method does nothing
+     * and returns <code>0</code>.
      *
      * @param n The number of characters to skip
-     * @return       The number of characters actually skipped
-     * @exception  IOException If the stream is closed, or an I/O error occurs
+     * @return The number of characters actually skipped
+     * @exception IOException If the stream is closed, or an I/O error occurs
      */
     public long skip(long n) throws IOException {
         synchronized (lock) {
@@ -173,10 +175,10 @@ public class CharArrayReader extends Reader {
     }
 
     /**
-     * Tells whether this stream is ready to be read.  Character-array readers
-     * are always ready to be read.
+     * Tells whether this stream is ready to be read. Character-array readers are
+     * always ready to be read.
      *
-     * @exception  IOException  If an I/O error occurs
+     * @exception IOException If an I/O error occurs
      */
     public boolean ready() throws IOException {
         synchronized (lock) {
@@ -193,16 +195,15 @@ public class CharArrayReader extends Reader {
     }
 
     /**
-     * Marks the present position in the stream.  Subsequent calls to reset()
-     * will reposition the stream to this point.
+     * Marks the present position in the stream. Subsequent calls to reset() will
+     * reposition the stream to this point.
      *
-     * @param  readAheadLimit  Limit on the number of characters that may be
-     *                         read while still preserving the mark.  Because
-     *                         the stream's input comes from a character array,
-     *                         there is no actual limit; hence this argument is
-     *                         ignored.
+     * @param readAheadLimit Limit on the number of characters that may be read
+     *                       while still preserving the mark. Because the stream's
+     *                       input comes from a character array, there is no actual
+     *                       limit; hence this argument is ignored.
      *
-     * @exception  IOException  If an I/O error occurs
+     * @exception IOException If an I/O error occurs
      */
     public void mark(int readAheadLimit) throws IOException {
         synchronized (lock) {
@@ -215,7 +216,7 @@ public class CharArrayReader extends Reader {
      * Resets the stream to the most recent mark, or to the beginning if it has
      * never been marked.
      *
-     * @exception  IOException  If an I/O error occurs
+     * @exception IOException If an I/O error occurs
      */
     public void reset() throws IOException {
         synchronized (lock) {
@@ -225,10 +226,10 @@ public class CharArrayReader extends Reader {
     }
 
     /**
-     * Closes the stream and releases any system resources associated with
-     * it.  Once the stream has been closed, further read(), ready(),
-     * mark(), reset(), or skip() invocations will throw an IOException.
-     * Closing a previously closed stream has no effect.
+     * Closes the stream and releases any system resources associated with it. Once
+     * the stream has been closed, further read(), ready(), mark(), reset(), or
+     * skip() invocations will throw an IOException. Closing a previously closed
+     * stream has no effect.
      */
     public void close() {
         buf = null;
